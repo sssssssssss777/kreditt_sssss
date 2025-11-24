@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор кредита</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #005a87;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .result-item {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Калькулятор кредита</h2>
+    
+    <div class="form-group">
+        <label>ФИО:</label>
+        <input type="text" id="name">
+    </div>
+
+    <div class="form-group">
+        <label>Возраст:</label>
+        <input type="number" id="old">
+    </div>
+
+    <div class="form-group">
+        <label>Тип занятости:</label>
+        <select id="tip">
+            <option value="а">Самозанятый</option>
+            <option value="б">ИП</option>
+            <option value="в">Наемный рабочий</option>
+            <option value="г">Студент</option>
+            <option value="д">Пенсионер</option>
+            <option value="е">Безработный</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Гражданство:</label>
+        <select id="gr">
+            <option value="а">РФ</option>
+            <option value="б">ВНЖ</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Общий доход (руб.):</label>
+        <input type="number" id="doxod">
+    </div>
+
+    <div class="form-group">
+        <label>Семейное положение:</label>
+        <select id="famili">
+            <option value="а">Женат/Замужем</option>
+            <option value="б">Одинок(а)</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Зарплата супруга (руб.):</label>
+        <input type="number" id="zp" value="0">
+    </div>
+
+    <div class="form-group">
+        <label>Количество иждивенцев:</label>
+        <input type="number" id="deti" value="0">
+    </div>
+
+    <div class="form-group">
+        <label>Стаж работы:</label>
+        <select id="srok">
+            <option value="а">Безработный/Студент</option>
+            <option value="б">Менее 3 месяцев</option>
+            <option value="в">От 3 до 6 месяцев</option>
+            <option value="г">От 6 месяцев до 1 года</option>
+            <option value="д">От 1 года до 3 лет</option>
+            <option value="е">Более 3 лет</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Кредитная история:</label>
+        <select id="istoria">
+            <option value="а">Нет истории</option>
+            <option value="б">Просрочки отсутствуют</option>
+            <option value="в">Погашенный кредит с просрочками</option>
+            <option value="г">Долг не погашен</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Жилье:</label>
+        <select id="home">
+            <option value="а">В собственности</option>
+            <option value="б">В аренду</option>
+            <option value="в">Общежитие</option>
+            <option value="г">В собственности родственников</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Цель кредита:</label>
+        <select id="goal">
+            <option value="а">Образование</option>
+            <option value="б">Медицина</option>
+            <option value="в">Автомобиль</option>
+            <option value="г">Потребительские нужды</option>
+            <option value="д">Другое</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Сумма кредита (руб.):</label>
+        <input type="number" id="summ">
+    </div>
+
+    <div class="form-group">
+        <label>Срок кредита (месяцев):</label>
+        <input type="number" id="srok_kredit">
+    </div>
+
+    <button onclick="calculateCredit()">Рассчитать кредит</button>
+
+    <div id="result" class="result"></div>
+
+    <script>
+        function calculateCredit() {
+            let f = 0;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+            
+            const name = document.getElementById('name').value;
+            const old = parseInt(document.getElementById('old').value) || 0;
+            const tip = document.getElementById('tip').value;
+            const gr = document.getElementById('gr').value;
+            const doxod = parseInt(document.getElementById('doxod').value) || 0;
+            const famili = document.getElementById('famili').value;
+            const zp = parseInt(document.getElementById('zp').value) || 0;
+            const deti = parseInt(document.getElementById('deti').value) || 0;
+            const srok = document.getElementById('srok').value;
+            const istoria = document.getElementById('istoria').value;
+            const home = document.getElementById('home').value;
+            const goal = document.getElementById('goal').value;
+            const summ = parseInt(document.getElementById('summ').value) || 0;
+            const srok_kredit = parseInt(document.getElementById('srok_kredit').value) || 0;
+
+            if (18 <= old && old <= 21) {
+                f = f + 1;
+            } else if (22 <= old && old <= 25) {
+                f = f + 2;
+            } else if (26 <= old && old <= 35) {
+                f = f + 3;
+            } else if (36 <= old && old <= 50) {
+                f = f + 4;
+            } else if (51 <= old && old <= 60) {
+                f = f + 5;
+            } else if (61 <= old && old <= 75) {
+                f = f + 1;
+            } else {
+                showResult("Кредит не одобрен по возрастному признаку", "error");
+                return;
+            }
+
+            if (["а", "б", "в", "г", "д", "е"].includes(tip)) {
+                if (tip == "а") {
+                    f = f + 10;
+                } else if (tip == "б") {
+                    f = f + 10;
+                } else if (tip == "в") {
+                    f = f + 5;
+                } else if (tip == "г") {
+                    f = f + 3;
+                } else if (tip == "д") {
+                    f = f + 0;
+                } else if (tip == "е") {
+                    f = f + 0;
+                }
+            } else {
+                showResult("ошибка ввода типа занятости", "error");
+                return;
+            }
+
+            if (gr == "а") {
+                f = f + 0;
+            } else {
+                showResult("Кредит не может быть одобрен из-за отсутствия гражданства РФ", "error");
+                return;
+            }
+
+            if (famili in ["а", "б"]) {
+                if (famili == "а") {
+                    f = f + 0;
+                }
+                if (famili == "б") {
+                    f = f + 0;
+                }
+            } else {
+                showResult("ошибка ввода семейного положения", "error");
+                return;
+            }
+
+            if (srok in ["а", "б", "в", "г", "д", "е"]) {
+                if (srok == "а") {
+                    f = f + 0;
+                } else if (srok == "б") {
+                    f = f + 1;
+                } else if (srok == "в") {
+                    f = f + 3;
+                } else if (srok == "г") {
+                    f = f + 5;
+                } else if (srok == "д") {
+                    f = f + 7;
+                } else if (srok == "е") {
+                    f = f + 10;
+                }
+            } else {
+                showResult("ошибка ввода стажа работы", "error");
+                return;
+            }
+
+            if (istoria in ["а", "б", "в", "г"]) {
+                if (istoria == "а") {
+                    f = f + 0;
+                } else if (istoria == "б") {
+                    f = f + 10;
+                } else if (istoria == "в") {
+                    f = f + 5;
+                } else if (istoria == "г") {
+                    f = f - 5;
+                }
+            } else {
+                showResult("ошибка ввода кредитной истории", "error");
+                return;
+            }
+
+            if (home in ["а", "б", "в", "г"]) {
+                if (home == "а") {
+                    f = f + 10;
+                } else if (home == "б") {
+                    f = f + 0;
+                } else if (home == "в") {
+                    f = f + 0;
+                } else if (home == "г") {
+                    f = f + 0;
+                }
+            } else {
+                showResult("ошибка ввода типа жилья", "error");
+                return;
+            }
+
+            if (goal in ["а", "б", "в", "г", "д"]) {
+                if (goal == "а") {
+                    f = f + 0;
+                }
+                if (goal == "б") {
+                    f = f + 0;
+                }
+                if (goal == "в") {
+                    f = f + 0;
+                }
+                if (goal == "г") {
+                    f = f + 0;
+                }
+            } else {
+                showResult("ошибка ввода цели кредита", "error");
+                return;
+            }
+
+            let R = 0;
+            if (0 <= f && f <= 9 && goal != "а") {
+                showResult("Кредит не одобрен, приносим свои извинения", "error");
+                return;
+            } else if (10 <= f && f <= 18 && goal != "а") {
+                R = 46 / 100;
+            } else if (19 <= f && f <= 27 && goal != "а") {
+                R = 38.5 / 100;
+            } else if (28 <= f && f <= 36 && goal != "а") {
+                R = 28.1 / 100;
+            } else if (37 <= f && f <= 45 && goal != "а") {
+                R = 23.5 / 100;
+            } else if (1 <= f && f <= 45 && goal == "а") {
+                R = 3 / 100;
+            }
+
+            let cvob;
+            if (zp == 0) {
+                cvob = (doxod + zp) - ((1 + deti) * 20000);
+            } else {
+               if (zp < (1 + deti) * 20000) {
+                   cvob = (doxod + zp) - ((1 + deti) * 20000);
+               }
+               if (zp >= (1 + deti) * 20000) {
+                   cvob = doxod - 20000;
+               }
+            }
+
+            const M = R / 12;
+            let P = summ * (M * Math.pow(1 + M, srok_kredit)) / (Math.pow(1 + M, srok_kredit) - 1);
+            P = Math.floor(P);
+            R = Math.round(R * 100 * 100) / 100;
+
+            if (P <= cvob) {
+                const resultHTML = `
+                    <div class="result-item"><strong>Вам одобрен кредит!</strong></div>
+                    <div class="result-item">Сумма кредита: ${summ.toLocaleString()} руб.</div>
+                    <div class="result-item">Срок выплаты: ${srok_kredit} месяцев</div>
+                    <div class="result-item">Процентная ставка: ${R}%</div>
+                    <div class="result-item">Ежемесячный платеж: ${P.toLocaleString()} руб.</div>
+                `;
+                showResult(resultHTML, "success");
+            } else {
+                showResult("Кредит не одобрен - слишком высокий платеж", "error");
+            }
+        }
+
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.className = 'result ' + type;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
